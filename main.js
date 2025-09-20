@@ -2,7 +2,7 @@ import { init_gnss_sensor, read_position_data } from './location.js';
 import { init_servo_driver, set_servo_angle } from './motor.js';
 import { init_weather_sensor, read_weather_data } from './weather.js';
 
-const TARGET_URL = 'http://somewhere/device/state';
+const TARGET_URL = 'http://web-iot-makers-challenge-2025.vercel.app/devices/state';
 
 // グローバル変数
 let umbrella_is_open;
