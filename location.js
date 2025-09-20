@@ -1,4 +1,4 @@
-import { requestI2Acess } from "./node_modules/node-web-i2c/index.js";
+import { requestI2CAccess } from "./node_modules/node-web-i2c/index.js";
 const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
 
 // MAX-M10SのデフォルトI2Cアドレス (データシート P.13 )
@@ -14,7 +14,7 @@ let isInitialized = false;
  */
 export async function init_gnss_sensor() {
   try {
-    const i2cAccess = await requestI2Acess();
+    const i2cAccess = await requestI2CAccess();
     const port = i2cAccess.ports.get(1);
     gnss_sensor = port.open(MAX_M10S_I2C_ADDR);
 
