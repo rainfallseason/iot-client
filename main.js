@@ -6,6 +6,15 @@ const TARGET_URL = 'http://web-iot-makers-challenge-2025.vercel.app/api/devices/
 
 // グローバル変数
 let umbrella_is_open;
+const UMBRELLA_OPEN_DEGREES = 0;
+const UMBRELLA_CLOSE_DEGREES = 180;
+const DUMMY_DATA = {
+    deviceId: 1,
+    temperature: 25.8,
+    humidity: 48.7,
+    latitude: 36.630938,
+    longtitude: 138.189167
+}; // 最悪センサーがフェイルした時にはこのダミーデータを下のdataの代わりに流してください
 
 async function sendPost() {
     try {
@@ -47,7 +56,7 @@ async function sendPost() {
             // isOpenとグローバル変数が違う場合はサーボを制御
             if (result.isOpen !== umbrella_is_open) {
                 umbrella_is_open = result.isOpen;
-                const angle = result.isOpen ? 0 : 180;
+                const angle = result.isOpen ? UMBRELLA_OPEN_DEGREES : UMBRELLA_CLOSE_DEGREES;
                 await set_servo_angle(1, angle);
                 await set_servo_angle(2, angle);
             }
@@ -65,8 +74,8 @@ async function initialize() {
     await init_weather_sensor();
     
     // モーター1番と2番を0度に回す
-    await set_servo_angle(1, 0);
-    await set_servo_angle(2, 0);
+    await set_servo_angle(1, UMBRELLA_OPEN_DEGREES);
+    await set_servo_angle(2, UMBRELLA_OPEN_DEGREES);
     
     // モーターを回した後にグローバル変数を設定
     umbrella_is_open = true;
