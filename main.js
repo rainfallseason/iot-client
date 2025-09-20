@@ -30,7 +30,13 @@ async function sendPost() {
         });
 
         if (response.ok) {
-            const result = await response.json();
+            let result;
+            try {
+                result = await response.json();
+            } catch (jsonError) {
+                console.log('Failed to parse JSON response:', jsonError);
+                return;
+            }
             
             // successがfalseの場合はログ出力
             if (!result.success) {
