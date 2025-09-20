@@ -1,6 +1,6 @@
-import { init_gnss_sensor } from './location.js';
+import { init_gnss_sensor, read_position_data } from './location.js';
 import { init_servo_driver, set_servo_angle } from './motor.js';
-import { init_weather_sensor } from './weather.js';
+import { init_weather_sensor, read_weather_data } from './weather.js';
 
 const TARGET_URL = 'http://somewhere/device/state';
 
@@ -9,16 +9,49 @@ let umbrella_is_open;
 
 async function sendPost() {
     try {
+        // 位置情報を読み取り
+        const position = await read_position_data();
+        
+        // 気象データを読み取り
+        const weather = await read_weather_data();
+        
         const data = {
-            timestamp: new Date().toISOString(),
-            message: 'data'
+            deviceId: 1,
+            temperature: weather ? weather.temperature : null,
+            humidity: weather ? weather.humidity : null,
+            latitude: position ? position.lat : null,
+            longtitude: position ? position.long : null
         };
 
-        await fetch(TARGET_URL, {
+        const response = await fetch(TARGET_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
+
+        if (response.ok) {
+            let result;
+            try {
+                result = await response.json();
+            } catch (jsonError) {
+                console.log('Failed to parse JSON response:', jsonError);
+                return;
+            }
+            
+            // successがfalseの場合はログ出力
+            if (!result.success) {
+                console.log('Server returned success: false');
+                return;
+            }
+            
+            // isOpenとグローバル変数が違う場合はサーボを制御
+            if (result.isOpen !== umbrella_is_open) {
+                umbrella_is_open = result.isOpen;
+                const angle = result.isOpen ? 0 : 180;
+                await set_servo_angle(1, angle);
+                await set_servo_angle(2, angle);
+            }
+        }
 
     } catch (error) {
         // エラーは無視
