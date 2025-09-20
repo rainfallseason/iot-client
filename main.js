@@ -1,48 +1,49 @@
-const http = require('http');
-const url = require('url');
-const querystring = require('querystring');
+import { init_gnss_sensor } from './location.js';
+import { init_servo_driver, set_servo_angle } from './motor.js';
+import { init_weather_sensor } from './weather.js';
 
-const server = http.createServer((req, res) => {
-  const parsedUrl = url.parse(req.url, true);
-  const pathname = parsedUrl.pathname;
+const TARGET_URL = 'http://somewhere/device/state';
 
-  // 共通レスポンス設定
-  res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+// グローバル変数
+let umbrella_is_open;
 
-  // /move への POST
-  if (pathname === '/move' && req.method === 'POST') {
-    let body = '';
-    req.on('data', chunk => { body += chunk; });
-    req.on('end', () => {
-      const data = querystring.parse(body);
-      if (data.order === 'open' || data.order === 'close') {
-        res.end(JSON.stringify({ result: 'ok', order: data.order }));
-        // ドライバーに指示出し
-      } else {
-        res.end(JSON.stringify({ result: 'error', message: 'invalid order' }));
-      }
-    });
-  }
+async function sendPost() {
+    try {
+        const data = {
+            timestamp: new Date().toISOString(),
+            message: 'data'
+        };
 
-  // /weather への GET
-  else if (pathname === '/weather' && req.method === 'GET') {
-    const { temp, humi, lat, lon } = // センサーから読み出したデータを構成
-    res.end(JSON.stringify({
-      temp: temp,
-      humi: humi,
-      lat: lat,
-      lon: lon
-    }));
-  }
+        await fetch(TARGET_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
 
-  // その他
-  else {
-    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end('Not Found');
-  }
-});
+    } catch (error) {
+        // エラーは無視
+    }
+}
 
-// ポート3000で待機
-server.listen(3000, () => {
-  console.log('Server running');
+// 初期化ルーチン
+async function initialize() {
+    await init_gnss_sensor();
+    await init_servo_driver();
+    await init_weather_sensor();
+    
+    // モーター1番と2番を0度に回す
+    await set_servo_angle(1, 0);
+    await set_servo_angle(2, 0);
+    
+    // モーターを回した後にグローバル変数を設定
+    umbrella_is_open = true;
+}
+
+// 初期化してからインターバル開始
+initialize().then(() => {
+    // 5秒おきに送信
+    setInterval(sendPost, 5000);
+    
+    // 即座に最初の送信
+    sendPost();
 });
