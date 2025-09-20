@@ -13,7 +13,7 @@ const DUMMY_DATA = {
     temperature: 25.8,
     humidity: 48.7,
     latitude: 36.630938,
-    longtitude: 138.189167
+    longitude: 138.189167
 }; // 最悪センサーがフェイルした時にはこのダミーデータを下のdataの代わりに流してください
 
 async function sendPost() {
@@ -29,7 +29,7 @@ async function sendPost() {
             temperature: weather ? weather.temperature : null,
             humidity: weather ? weather.humidity : null,
             latitude: position ? position.lat : null,
-            longtitude: position ? position.long : null
+            longitude: position ? position.long : null
         };
 
         const response = await fetch(TARGET_URL, {
