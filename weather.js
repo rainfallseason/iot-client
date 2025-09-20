@@ -1,4 +1,4 @@
-import BME680 from "https://cdn.jsdelivr.net/npm/@chirimen/bme680@1.0.0/bme680.js";
+import BME680 from "@chirimen/bme680";
 
 // グローバル変数
 let bme_sensor;
