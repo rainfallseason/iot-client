@@ -15,7 +15,7 @@ let isInitialized = false;
 export async function init_gnss_sensor() {
   try {
     const i2cAccess = await requestI2CAccess();
-    const port = i2cAccess.ports.get(1);
+    const port = i2cAccess.ports.get(0);
     gnss_sensor = port.open(MAX_M10S_I2C_ADDR);
 
     // データシート上、デフォルト設定でNMEAデータが出力されるため、

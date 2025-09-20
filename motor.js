@@ -29,7 +29,7 @@ let isInitialized = false;
 export async function init_servo_driver(i2c_addr = PCA9685_I2C_ADDR, freq = SERVO_FREQ) {
   try {
     const i2cAccess = await requestI2CAccess();
-    const port = i2cAccess.ports.get(1);
+    const port = i2cAccess.ports.get(0);
     pca9685 = port.open(i2c_addr);
 
     // 1. リセットして初期状態へ
