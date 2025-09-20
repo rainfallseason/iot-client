@@ -50,7 +50,7 @@ let isInitialized = false;
 export async function init_weather_sensor() {
   try {
     const i2cAccess = await requestI2CAccess();
-    const port = i2cAccess.ports.get(1);
+    const port = i2cAccess.ports.get(0);
     bme688 = port.open(BME688_I2C_ADDR);
 
     // 1. センサーIDの確認
